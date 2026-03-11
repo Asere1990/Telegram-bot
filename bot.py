@@ -256,10 +256,9 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = update.effective_user
 
-    data = USERS.get(str(user.id), {})
-    phone_guardado = (data.get("phone") or "").strip()
+    phone_actual = (context.user_data.get(UD_PHONE) or "").strip()
 
-    if not phone_guardado:
+    if not phone_actual:
         await q.answer(
             text="verifica que eres miembro del grupo de clases",
             show_alert=True
@@ -308,7 +307,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"Nombre: {user.full_name or 'Sin nombre'}\n"
                     f"Username: @{user.username or 'sin_username'}\n"
                     f"ID: {user.id}\n"
-                    f"Teléfono: {phone_guardado}"
+                    f"Teléfono: {phone_actual}"
                 )
             )
     except Exception as e:
