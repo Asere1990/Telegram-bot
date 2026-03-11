@@ -54,6 +54,11 @@ def share_phone_kb():
     btn = KeyboardButton("👉🏻𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎🇨🇺", request_contact=True)
     return ReplyKeyboardMarkup([[btn]], resize_keyboard=True, one_time_keyboard=True)
 
+def start_inline_kb():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("👉🏻𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎🇨🇺", callback_data="start_join")]
+    ])
+
 def build_keypad(code_str: str):
     rows = [
         [InlineKeyboardButton("A", callback_data="d:A"),
@@ -210,7 +215,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_video(
                 video=start_video,
                 caption=caption,
-                reply_markup=share_phone_kb(),
+                reply_markup=start_inline_kb(),
                 parse_mode="HTML"
             )
             return
@@ -219,8 +224,37 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
         caption,
-        reply_markup=share_phone_kb(),
+        reply_markup=start_inline_kb(),
         parse_mode="HTML"
+    )
+
+async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    user = update.effective_user
+    await q.answer()
+
+    data = USERS.get(str(user.id), {})
+    phone_guardado = (data.get("phone") or "").strip()
+
+    if not phone_guardado:
+        await q.answer(
+            "verifica que eres miembro del grupo de clases",
+            show_alert=True
+        )
+        return
+
+    try:
+        if ADMIN_CHANNEL_ID:
+            await context.bot.send_message(
+                chat_id=ADMIN_CHANNEL_ID,
+                text="El estudiante pertenece al grupo"
+            )
+    except Exception as e:
+        log.exception("Error enviando mensaje al grupo privado: %s", e)
+
+    await context.bot.send_message(
+        chat_id=user.id,
+        text="revisa detenidamente el video tutorial"
     )
 
 async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -547,6 +581,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.CONTACT, on_contact))
+    app.add_handler(CallbackQueryHandler(start_join_cb, pattern="^start_join$"))
     app.add_handler(CallbackQueryHandler(keypad_cb))
     app.add_handler(CommandHandler("id", id_cmd))
     app.add_handler(CommandHandler("testsend", testsend_cmd))
