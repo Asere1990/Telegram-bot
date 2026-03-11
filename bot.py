@@ -193,13 +193,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data[UD_CODE] = ""
     context.user_data.pop(UD_PHONE, None)
 
-    nombre_usuario = update.effective_user.first_name or "usuario"
+    nombre_usuario = update.effective_user.first_name or "Alumno"
+    nombre_unicode = to_unicode_bold(nombre_usuario)
+
     caption = (
-        f"👋𝐇𝐨𝐥𝐚 {nombre_usuario}\n\n"
-        "𝐑𝐄𝐆𝐋𝐀 #𝟏: 𝐌𝐚𝐧𝐭𝐞𝐧𝐞𝐫 𝐬𝐢𝐞𝐦𝐩𝐫.\n\n"
-        "𝐑𝐄𝐆𝐋𝐀 #𝟐: 𝐄𝐧 𝐥𝐚𝐬.\n\n"
-        "𝐏𝐚𝐫𝐚 𝐞𝐧𝐭𝐫𝐚𝐫 𝐚𝐥 𝐠𝐫𝐮𝐩𝐨, 𝐩𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭ó𝐧:\n"
-        "“𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎”"
+        f"👩🏻‍💼𝐇𝐨𝐥𝐚 {nombre_unicode}. 𝐁𝐢𝐞𝐧𝐯𝐞𝐧𝐢𝐝𝐨 𝐚 𝐂𝐔𝐁𝐀𝐓𝐄𝐋🇨🇺\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟏</u>: Escribir mensaje\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟐</u>: Escribir mensaje\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟑</u>: Escribir mensaje\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟒</u>: Escribir mensaje"
     )
 
     start_video = os.getenv("START_VIDEO", "").strip()
@@ -209,7 +211,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 video=start_video,
                 caption=caption,
                 reply_markup=share_phone_kb(),
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
             return
         except Exception as e:
@@ -218,7 +220,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         caption,
         reply_markup=share_phone_kb(),
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
 
 async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
