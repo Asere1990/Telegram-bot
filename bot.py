@@ -233,11 +233,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML"
         )
 
-    await update.message.reply_text(
-        "👇🏻 𝐒𝐢 𝐚𝐮́𝐧 𝐧𝐨 𝐡𝐚𝐬 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐝𝐨 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨, 𝐮𝐬𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨:",
-        reply_markup=share_phone_kb()
-    )
-
 async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = update.effective_user
