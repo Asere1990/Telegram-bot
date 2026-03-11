@@ -210,6 +210,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     start_video = os.getenv("START_VIDEO", "").strip()
+
     if start_video:
         try:
             await update.message.reply_video(
@@ -218,30 +219,45 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=start_inline_kb(),
                 parse_mode="HTML"
             )
-            return
         except Exception as e:
             log.exception("No pude enviar el video de inicio: %s", e)
+            await update.message.reply_text(
+                caption,
+                reply_markup=start_inline_kb(),
+                parse_mode="HTML"
+            )
+    else:
+        await update.message.reply_text(
+            caption,
+            reply_markup=start_inline_kb(),
+            parse_mode="HTML"
+        )
 
     await update.message.reply_text(
-        caption,
-        reply_markup=start_inline_kb(),
-        parse_mode="HTML"
+        "👇🏻 𝐒𝐢 𝐚𝐮́𝐧 𝐧𝐨 𝐡𝐚𝐬 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐝𝐨 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨, 𝐮𝐬𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨:",
+        reply_markup=share_phone_kb()
     )
 
 async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = update.effective_user
-    await q.answer()
 
     data = USERS.get(str(user.id), {})
     phone_guardado = (data.get("phone") or "").strip()
 
     if not phone_guardado:
         await q.answer(
-            "verifica que eres miembro del grupo de clases",
+            text="verifica que eres miembro del grupo de clases",
             show_alert=True
         )
+        await context.bot.send_message(
+            chat_id=user.id,
+            text="👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
+            reply_markup=share_phone_kb()
+        )
         return
+
+    await q.answer()
 
     try:
         if ADMIN_CHANNEL_ID:
