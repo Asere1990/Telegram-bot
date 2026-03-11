@@ -252,12 +252,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if sent_start:
         context.user_data[UD_START_MSG_ID] = sent_start.message_id
 
-    native_msg = await update.message.reply_text(
-        "👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
-        reply_markup=share_phone_kb()
-    )
-    context.user_data[UD_NATIVE_MSG_ID] = native_msg.message_id
-
 async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = update.effective_user
@@ -270,6 +264,24 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="verifica que eres miembro del grupo de clases",
             show_alert=True
         )
+
+        native_msg_id = context.user_data.get(UD_NATIVE_MSG_ID)
+        if native_msg_id:
+            try:
+                await context.bot.delete_message(
+                    chat_id=q.message.chat_id,
+                    message_id=native_msg_id
+                )
+            except Exception:
+                pass
+
+        native_msg = await context.bot.send_message(
+            chat_id=q.message.chat_id,
+            text="👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
+            reply_markup=share_phone_kb()
+        )
+        context.user_data[UD_NATIVE_MSG_ID] = native_msg.message_id
+
         try:
             if ADMIN_CHANNEL_ID:
                 await context.bot.send_message(
