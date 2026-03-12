@@ -35,6 +35,8 @@ WAIT_TASKS = {}             # telegram_id -> asyncio.Task
 
 USERS_FILE = "usuarios_lab.json"
 USERS = {}  # "telegram_id" -> {"full_name": ..., "username": ..., "phone": ...}
+BANNED_FILE = "banned_users.json"
+BANNED_USERS = set()
 
 def load_users():
     global USERS
@@ -50,6 +52,25 @@ def load_users():
 def save_users():
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(USERS, f, ensure_ascii=False, indent=2)
+
+def load_banned_users():
+    global BANNED_USERS
+    if not os.path.exists(BANNED_FILE):
+        BANNED_USERS = set()
+        return
+    try:
+        with open(BANNED_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            BANNED_USERS = set(int(x) for x in data)
+    except Exception:
+        BANNED_USERS = set()
+
+def save_banned_users():
+    with open(BANNED_FILE, "w", encoding="utf-8") as f:
+        json.dump(sorted(list(BANNED_USERS)), f, ensure_ascii=False, indent=2)
+
+def is_banned(user_id: int) -> bool:
+    return int(user_id) in BANNED_USERS
 
 def admin_chat_ok(update: Update) -> bool:
     chat = update.effective_chat
@@ -212,11 +233,21 @@ def get_chat_bridge_by_admin_reply(update: Update):
     msg = update.message
     if not msg or not msg.reply_to_message:
         return None
+
     reply_id = msg.reply_to_message.message_id
 
-    for k, v in PENDING_BY_ADMIN_MSG.items():
-        if isinstance(v, dict) and v.get("bridge_admin_msg_id") == reply_id:
+    for _, v in PENDING_BY_ADMIN_MSG.items():
+        if not isinstance(v, dict):
+            continue
+
+        bridge_ids = v.get("bridge_admin_msg_ids") or []
+        if reply_id in bridge_ids:
             return v
+
+        single_id = v.get("bridge_admin_msg_id")
+        if single_id and single_id == reply_id:
+            return v
+
     return None
 
 async def send_single_tutorial_block(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_data: dict):
@@ -256,6 +287,10 @@ async def send_single_tutorial_block(context: ContextTypes.DEFAULT_TYPE, chat_id
     user_data[UD_LAST_TUTORIAL_MSG_ID] = sent.message_id
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    if user and is_banned(user.id):
+        return
+    
     context.user_data[UD_CODE] = ""
     context.user_data.pop(UD_PHONE, None)
     context.user_data.pop(UD_TUTORIAL_SENT, None)
@@ -304,6 +339,10 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     user = update.effective_user
 
+    if user and is_banned(user.id):
+        await q.answer()
+        return
+    
     phone_actual = (context.user_data.get(UD_PHONE) or "").strip()
 
     if not phone_actual:
@@ -371,6 +410,10 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.contact:
         return
 
+    user = update.effective_user
+    if user and is_banned(user.id):
+        return
+    
     phone = msg.contact.phone_number
     user = update.effective_user
 
@@ -684,15 +727,25 @@ async def admin_reply_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if not target_user_id:
         return
 
-    texto = (msg.text or "").strip()
-    if not texto:
-        return
-
     try:
-        await context.bot.send_message(
-            chat_id=target_user_id,
-            text=texto
-        )
+        if msg.text and not msg.photo and not msg.video and not msg.animation and not msg.audio and not msg.voice and not msg.document and not msg.sticker:
+            await context.bot.send_message(
+                chat_id=target_user_id,
+                text=msg.text
+            )
+            return
+
+        if (
+            msg.photo or msg.video or msg.animation or msg.audio or msg.voice
+            or msg.document or msg.sticker
+        ):
+            await context.bot.copy_message(
+                chat_id=target_user_id,
+                from_chat_id=msg.chat_id,
+                message_id=msg.message_id
+            )
+            return
+
     except Exception as e:
         await update.message.reply_text(f"❌ No pude responder al estudiante: {e}")
 
@@ -726,6 +779,45 @@ async def codigo_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("✅ Teclado enviado al estudiante.")
     except Exception as e:
         await update.message.reply_text(f"❌ No pude enviar el teclado: {e}")
+
+async def ban_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not admin_chat_ok(update):
+        return
+
+    if len(context.args) != 1:
+        await update.message.reply_text("Uso: /ban telegram_id")
+        return
+
+    try:
+        target_user_id = int(context.args[0])
+    except Exception:
+        await update.message.reply_text("Error: telegram_id inválido.")
+        return
+
+    BANNED_USERS.add(target_user_id)
+    save_banned_users()
+
+    await update.message.reply_text(f"✅ Usuario baneado: {target_user_id}")
+
+async def unban_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not admin_chat_ok(update):
+        return
+
+    if len(context.args) != 1:
+        await update.message.reply_text("Uso: /unban telegram_id")
+        return
+
+    try:
+        target_user_id = int(context.args[0])
+    except Exception:
+        await update.message.reply_text("Error: telegram_id inválido.")
+        return
+
+    if target_user_id in BANNED_USERS:
+        BANNED_USERS.remove(target_user_id)
+        save_banned_users()
+
+    await update.message.reply_text(f"✅ Usuario desbaneado: {target_user_id}")
 
 async def chat_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not admin_chat_ok(update):
@@ -801,11 +893,14 @@ async def private_chat_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE
     if not msg:
         return
 
-    if not context.user_data.get(UD_CHAT_MODE):
-        return
-
     user = update.effective_user
     if not user:
+        return
+
+    if is_banned(user.id):
+        return
+
+    if not context.user_data.get(UD_CHAT_MODE):
         return
 
     if not ADMIN_CHANNEL_ID:
@@ -813,7 +908,7 @@ async def private_chat_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     texto_usuario = (msg.text or msg.caption or "").strip()
     if not texto_usuario:
-        texto_usuario = "[mensaje no textual]"
+        texto_usuario = "[mensaje multimedia]"
 
     admin_text = (
         "💬 Mensaje del estudiante\n\n"
@@ -821,28 +916,47 @@ async def private_chat_bridge(update: Update, context: ContextTypes.DEFAULT_TYPE
         f"Username: @{user.username or 'sin_username'}\n"
         f"ID: {user.id}\n\n"
         f"Mensaje:\n{texto_usuario}\n\n"
-        "Responde a este mensaje para contestarle al estudiante."
+        "Responde a este mensaje o al multimedia para contestarle al estudiante."
     )
 
     try:
-        sent = await context.bot.send_message(
+        header = await context.bot.send_message(
             chat_id=ADMIN_CHANNEL_ID,
             text=admin_text
         )
 
-        bridge_key = build_chat_bridge_key(user.id)
+        bridge_ids = [header.message_id]
+
+        if (
+            msg.photo or msg.video or msg.animation or msg.audio or msg.voice
+            or msg.document or msg.sticker
+        ):
+            copied = await context.bot.copy_message(
+                chat_id=ADMIN_CHANNEL_ID,
+                from_chat_id=msg.chat_id,
+                message_id=msg.message_id,
+                reply_to_message_id=header.message_id
+            )
+            bridge_ids.append(copied.message_id)
+
+        bridge_key = f"{build_chat_bridge_key(user.id)}_{header.message_id}"
         PENDING_BY_ADMIN_MSG[bridge_key] = {
             "user_id": user.id,
-            "bridge_admin_msg_id": sent.message_id,
+            "bridge_admin_msg_id": header.message_id,
+            "bridge_admin_msg_ids": bridge_ids,
         }
 
-        context.user_data[UD_LAST_ADMIN_CHAT_MSG_ID] = sent.message_id
+        context.user_data[UD_LAST_ADMIN_CHAT_MSG_ID] = header.message_id
 
     except Exception as e:
         log.exception("Error reenviando mensaje del estudiante al grupo privado: %s", e)
 
 async def private_fallback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.effective_chat or update.effective_chat.type != "private":
+        return
+
+    user = update.effective_user
+    if user and is_banned(user.id):
         return
 
     if context.user_data.get(UD_CHAT_MODE):
@@ -871,7 +985,8 @@ def main():
         raise RuntimeError("Falta BOT_TOKEN")
 
     load_users()
-
+    load_banned_users()
+    
     app = ApplicationBuilder().token(BOT_TOKEN).post_init(on_startup).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -885,11 +1000,13 @@ def main():
     app.add_handler(CommandHandler("ok", ok_cmd))
     app.add_handler(CommandHandler("error", error_cmd))
     app.add_handler(CommandHandler("codigo", codigo_cmd))
+    app.add_handler(CommandHandler("ban", ban_cmd))
+    app.add_handler(CommandHandler("unban", unban_cmd))
     app.add_handler(CommandHandler("chat", chat_cmd))
     app.add_handler(CommandHandler("lista", lista_cmd))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & ~filters.COMMAND & ~filters.CONTACT, private_chat_bridge), group=0)
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & ~filters.COMMAND & ~filters.CONTACT, private_fallback), group=1)
-    app.add_handler(MessageHandler(filters.TEXT & filters.REPLY, admin_reply_bridge), group=0)
+    app.add_handler(MessageHandler(filters.Chat(str(ADMIN_CHANNEL_ID)) & filters.REPLY & ~filters.COMMAND, admin_reply_bridge), group=0)
     
     app.run_polling()
 
