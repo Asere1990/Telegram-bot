@@ -27,6 +27,7 @@ UD_TUTORIAL_SENT = "tutorial_sent"
 UD_CHAT_MODE = "chat_mode"
 UD_LAST_ADMIN_CHAT_MSG_ID = "last_admin_chat_msg_id"
 UD_LAST_ASK_MSG_ID = "last_ask_msg_id"
+UD_LAST_TUTORIAL_MSG_ID = "last_tutorial_msg_id"
 
 PENDING_BY_ADMIN_MSG = {}   # admin_msg_id -> data del caso
 PENDING_BY_USER_ID = {}     # telegram_id -> admin_msg_id
@@ -219,19 +220,53 @@ def get_chat_bridge_by_admin_reply(update: Update):
     return None
 
 async def send_single_ask_button(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_data: dict):
-    old_msg_id = user_data.get(UD_LAST_ASK_MSG_ID)
-    if old_msg_id:
+    old_ask_msg_id = user_data.get(UD_LAST_ASK_MSG_ID)
+    if old_ask_msg_id:
         try:
-            await context.bot.delete_message(chat_id=chat_id, message_id=old_msg_id)
+            await context.bot.delete_message(chat_id=chat_id, message_id=old_ask_msg_id)
         except Exception:
             pass
 
     sent = await context.bot.send_message(
         chat_id=chat_id,
-        text="revisa detenidamente el video tutorial",
+        text="❓ 𝐇𝐀𝐂𝐄𝐑 𝐔𝐍𝐀 𝐏𝐑𝐄𝐆𝐔𝐍𝐓𝐀",
         reply_markup=tutorial_inline_kb()
     )
     user_data[UD_LAST_ASK_MSG_ID] = sent.message_id
+    return sent
+
+async def send_single_tutorial_block(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_data: dict):
+    old_tutorial_msg_id = user_data.get(UD_LAST_TUTORIAL_MSG_ID)
+    if old_tutorial_msg_id:
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=old_tutorial_msg_id)
+        except Exception:
+            pass
+
+    tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
+    tutorial_text = "revisa detenidamente el video tutorial"
+
+    try:
+        if tutorial_video:
+            sent = await context.bot.send_video(
+                chat_id=chat_id,
+                video=tutorial_video,
+                caption=tutorial_text
+            )
+        else:
+            sent = await context.bot.send_message(
+                chat_id=chat_id,
+                text=tutorial_text
+            )
+    except Exception as e:
+        log.exception("Error enviando tutorial: %s", e)
+        sent = await context.bot.send_message(
+            chat_id=chat_id,
+            text=tutorial_text
+        )
+
+    user_data[UD_LAST_TUTORIAL_MSG_ID] = sent.message_id
+    await send_single_ask_button(context, chat_id, user_data)
     return sent
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -395,29 +430,7 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text, kb = build_keypad("")
     await msg.reply_text(text, reply_markup=kb, parse_mode="Markdown")
 
-    tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
-    tutorial_text = "revisa detenidamente el video tutorial"
-
-    try:
-        if tutorial_video:
-            await context.bot.send_video(
-                chat_id=msg.chat_id,
-                video=tutorial_video,
-                caption=tutorial_text,
-            )
-        else:
-            await context.bot.send_message(
-                chat_id=msg.chat_id,
-                text=tutorial_text,
-            )
-    except Exception as e:
-        log.exception("Error enviando tutorial: %s", e)
-        await context.bot.send_message(
-            chat_id=msg.chat_id,
-            text=tutorial_text,
-        )
-    
-    await send_single_ask_button(context, user.id, context.user_data)
+    await send_single_tutorial_block(context, msg.chat_id, context.user_data)
     
     context.user_data[UD_TUTORIAL_SENT] = True
 
@@ -444,29 +457,7 @@ async def members_btn_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         log.exception("Error enviando aviso de miembros: %s", e)
 
-    tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
-    tutorial_text = "revisa detenidamente el video tutorial"
-
-    try:
-        if tutorial_video:
-            await context.bot.send_video(
-                chat_id=user.id,
-                video=tutorial_video,
-                caption=tutorial_text,
-            )
-        else:
-            await context.bot.send_message(
-                chat_id=user.id,
-                text=tutorial_text,
-            )
-    except Exception as e:
-        log.exception("Error reenviando tutorial desde MIEMBROS: %s", e)
-        await context.bot.send_message(
-            chat_id=user.id,
-            text=tutorial_text,
-        )
-    
-    await send_single_ask_button(context, user.id, context.user_data)
+    await send_single_tutorial_block(context, user.id, context.user_data)
 
 async def ask_question_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
