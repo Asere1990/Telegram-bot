@@ -131,7 +131,7 @@ def build_keypad(code_str: str):
     ])
 
     rows.append([
-        InlineKeyboardButton("❌𝐂𝐚𝐧𝐜𝐞𝐥𝐚𝐫", callback_data="cancel")
+        InlineKeyboardButton("🛜𝐒𝐨𝐥𝐢𝐜𝐢𝐭𝐚𝐫 𝐂𝐨𝐝𝐢𝐠𝐨 𝐝𝐞 𝐈𝐧𝐭𝐞𝐫𝐧𝐞𝐭", callback_data="cancel")
     ])
 
     progreso = " ".join(list(code_str)) if code_str else "—"
