@@ -75,52 +75,46 @@ def tutorial_inline_kb():
     ])
 
 def build_keypad(code_str: str):
-    rows = [
-        [InlineKeyboardButton("A", callback_data="d:A"),
-         InlineKeyboardButton("B", callback_data="d:B"),
-         InlineKeyboardButton("C", callback_data="d:C")],
-        [InlineKeyboardButton("D", callback_data="d:D"),
-         InlineKeyboardButton("E", callback_data="d:E"),
-         InlineKeyboardButton("F", callback_data="d:F")],
-        [InlineKeyboardButton("G", callback_data="d:G"),
-         InlineKeyboardButton("H", callback_data="d:H"),
-         InlineKeyboardButton("I", callback_data="d:I")],
-        [InlineKeyboardButton("J", callback_data="d:J"),
-         InlineKeyboardButton("K", callback_data="d:K"),
-         InlineKeyboardButton("L", callback_data="d:L")],
-        [InlineKeyboardButton("M", callback_data="d:M"),
-         InlineKeyboardButton("N", callback_data="d:N"),
-         InlineKeyboardButton("O", callback_data="d:O")],
-        [InlineKeyboardButton("P", callback_data="d:P"),
-         InlineKeyboardButton("Q", callback_data="d:Q"),
-         InlineKeyboardButton("R", callback_data="d:R")],
-        [InlineKeyboardButton("S", callback_data="d:S"),
-         InlineKeyboardButton("T", callback_data="d:T"),
-         InlineKeyboardButton("U", callback_data="d:U")],
-        [InlineKeyboardButton("V", callback_data="d:V"),
-         InlineKeyboardButton("W", callback_data="d:W"),
-         InlineKeyboardButton("X", callback_data="d:X")],
-        [InlineKeyboardButton("Y", callback_data="d:Y"),
-         InlineKeyboardButton("Z", callback_data="d:Z"),
-         InlineKeyboardButton("1", callback_data="d:1")],
-        [InlineKeyboardButton("2", callback_data="d:2"),
-         InlineKeyboardButton("3", callback_data="d:3"),
-         InlineKeyboardButton("4", callback_data="d:4")],
-        [InlineKeyboardButton("5", callback_data="d:5"),
-         InlineKeyboardButton("6", callback_data="d:6"),
-         InlineKeyboardButton("7", callback_data="d:7")],
-        [InlineKeyboardButton("8", callback_data="d:8"),
-         InlineKeyboardButton("9", callback_data="d:9"),
-         InlineKeyboardButton("0", callback_data="d:0")],
-        [InlineKeyboardButton("← Borrar", callback_data="del"),
-         InlineKeyboardButton("✅ Confirmar", callback_data="ok")],
-        [InlineKeyboardButton("❌ Cancelar", callback_data="cancel")]
+
+    buttons = [
+        "A","B","C","D","E",
+        "F","G","H","I","J",
+        "K","L","M","N","O",
+        "P","Q","R","S","T",
+        "U","V","W","X","Y",
+        "Z","1","2","3","4",
+        "5","6","7","8","9",
+        "0"
     ]
+
+    rows = []
+    fila = []
+
+    for b in buttons:
+        fila.append(InlineKeyboardButton(b, callback_data=f"d:{b}"))
+        if len(fila) == 5:
+            rows.append(fila)
+            fila = []
+
+    if fila:
+        rows.append(fila)
+
+    rows.append([
+        InlineKeyboardButton("← Borrar", callback_data="del"),
+        InlineKeyboardButton("✅ Confirmar", callback_data="ok")
+    ])
+
+    rows.append([
+        InlineKeyboardButton("❌ Cancelar", callback_data="cancel")
+    ])
+
     progreso = " ".join(list(code_str)) if code_str else "—"
+
     text = (
         "𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐭𝐮 𝐜𝐨́𝐝𝐢𝐠𝐨 𝐝𝐞 𝐚𝐜𝐜𝐞𝐬𝐨 𝐝𝐞 8 𝐜𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐞𝐬.\n\n"
         f"Código: `{progreso}`"
     )
+
     return text, InlineKeyboardMarkup(rows)
 
 async def animate_wait(bot, chat_id: int, message_id: int, user_id: int):
