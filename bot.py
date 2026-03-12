@@ -127,7 +127,7 @@ def build_keypad(code_str: str):
 
     rows.append([
         InlineKeyboardButton("🗑️𝐁𝐨𝐫𝐫𝐚𝐫", callback_data="del"),
-        InlineKeyboardButton("✔️𝐂𝐨𝐧𝐞𝐜𝐭𝐚𝐫", callback_data="ok")
+        InlineKeyboardButton("📶𝐂𝐨𝐧𝐞𝐜𝐭𝐚𝐫", callback_data="ok")
     ])
 
     rows.append([
