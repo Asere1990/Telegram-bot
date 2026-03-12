@@ -507,6 +507,8 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.contact:
         return
 
+    await msg.delete()
+    
     user = update.effective_user
     if user and is_banned(user.id):
         return
