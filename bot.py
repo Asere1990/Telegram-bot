@@ -140,7 +140,7 @@ def build_keypad(code_str: str):
 
     return text, InlineKeyboardMarkup(rows)
 
-async def animate_wait(bot, chat_id: int, message_id: int, user_id: int):
+async def animate_wait(bot, chat_id: int, message_id: int, user_id: int, is_photo: bool = False):
     frames = [
         "⏳ Conectando a internet.",
         "⌛️ Conectando a internet..",
@@ -149,11 +149,18 @@ async def animate_wait(bot, chat_id: int, message_id: int, user_id: int):
     idx = 0
     try:
         while True:
-            await bot.edit_message_text(
-                chat_id=chat_id,
-                message_id=message_id,
-                text=frames[idx % len(frames)]
-            )
+            if is_photo:
+                await bot.edit_message_caption(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    caption=frames[idx % len(frames)]
+                )
+            else:
+                await bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=frames[idx % len(frames)]
+                )
             idx += 1
             await asyncio.sleep(1.0)
     except asyncio.CancelledError:
@@ -578,11 +585,20 @@ async def keypad_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             log.exception("Error enviando caso al destino: %s", e)
 
-        await q.edit_message_text("⏳ Conectando...")
+        if q.message.photo:
+            await q.edit_message_caption(caption="⏳ Conectando...")
+        else:
+            await q.edit_message_text("⏳ Conectando...")
 
         stop_wait_task(user.id)
         WAIT_TASKS[user.id] = asyncio.create_task(
-            animate_wait(context.bot, q.message.chat_id, q.message.message_id, user.id)
+            animate_wait(
+                context.bot,
+                q.message.chat_id,
+                q.message.message_id,
+                user.id,
+                is_photo=bool(q.message.photo),
+            )
         )
 
         if admin_msg:
