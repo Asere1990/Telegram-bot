@@ -219,28 +219,13 @@ def get_chat_bridge_by_admin_reply(update: Update):
             return v
     return None
 
-async def send_single_ask_button(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_data: dict):
-    old_ask_msg_id = user_data.get(UD_LAST_ASK_MSG_ID)
-    if old_ask_msg_id:
-        try:
-            await context.bot.delete_message(chat_id=chat_id, message_id=old_ask_msg_id)
-        except Exception:
-            pass
-
-    sent = await context.bot.send_message(
-        chat_id=chat_id,
-        text="❓ 𝐇𝐀𝐂𝐄𝐑 𝐔𝐍𝐀 𝐏𝐑𝐄𝐆𝐔𝐍𝐓𝐀",
-        reply_markup=tutorial_inline_kb()
-    )
-    user_data[UD_LAST_ASK_MSG_ID] = sent.message_id
-    return sent
-
 async def send_single_tutorial_block(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_data: dict):
+
     old_tutorial_msg_id = user_data.get(UD_LAST_TUTORIAL_MSG_ID)
     if old_tutorial_msg_id:
         try:
             await context.bot.delete_message(chat_id=chat_id, message_id=old_tutorial_msg_id)
-        except Exception:
+        except:
             pass
 
     tutorial_video = os.getenv("TUTORIAL_VIDEO", "").strip()
@@ -251,23 +236,24 @@ async def send_single_tutorial_block(context: ContextTypes.DEFAULT_TYPE, chat_id
             sent = await context.bot.send_video(
                 chat_id=chat_id,
                 video=tutorial_video,
-                caption=tutorial_text
+                caption=tutorial_text,
+                reply_markup=tutorial_inline_kb()
             )
         else:
             sent = await context.bot.send_message(
                 chat_id=chat_id,
-                text=tutorial_text
+                text=tutorial_text,
+                reply_markup=tutorial_inline_kb()
             )
     except Exception as e:
         log.exception("Error enviando tutorial: %s", e)
         sent = await context.bot.send_message(
             chat_id=chat_id,
-            text=tutorial_text
+            text=tutorial_text,
+            reply_markup=tutorial_inline_kb()
         )
 
     user_data[UD_LAST_TUTORIAL_MSG_ID] = sent.message_id
-    await send_single_ask_button(context, chat_id, user_data)
-    return sent
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data[UD_CODE] = ""
