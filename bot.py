@@ -265,10 +265,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     caption = (
         f"👩🏻‍💼𝐇𝐨𝐥𝐚 {nombre_unicode}. 𝐁𝐢𝐞𝐧𝐯𝐞𝐧𝐢𝐝𝐨 𝐚 𝐂𝐔𝐁𝐀𝐓𝐄𝐋🇨🇺. 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐈𝐋𝐈𝐌𝐈𝐓𝐀𝐃𝐎 𝐬𝐢𝐧 𝐜𝐨𝐧𝐬𝐮𝐦𝐨 𝐝𝐞 𝐝𝐚𝐭𝐨𝐬 𝐦𝐨𝐯𝐢𝐥𝐞𝐬. 𝐎𝐟𝐞𝐫𝐭𝐚 𝐥𝐢𝐦𝐢𝐭𝐚𝐝𝐚 𝐡𝐚𝐬𝐭𝐚 𝐞𝐥 𝟑𝟏 𝐝𝐞 𝐦𝐚𝐫𝐳𝐨\n\n"
-        "<u>𝐏𝐀𝐒𝐎 #𝟏</u>: Escribir mensaje\n\n"
-        "<u>𝐏𝐀𝐒𝐎 #𝟐</u>: Escribir mensaje\n\n"
-        "<u>𝐏𝐀𝐒𝐎 #𝟑</u>: Escribir mensaje\n\n"
-        "<u>𝐏𝐀𝐒𝐎 #𝟒</u>: Escribir mensaje"
+        "<u>𝐏𝐀𝐒𝐎 #𝟏</u>: 𝐂𝐨𝐧𝐟𝐢𝐠𝐮𝐫𝐚𝐜𝐢𝐨𝐧 𝐝𝐞 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟐</u>: 𝐕𝐢𝐧𝐜𝐮𝐥𝐚𝐫 𝐝𝐢𝐬𝐩𝐨𝐬𝐢𝐭𝐢𝐯𝐨\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟑</u>: 𝐕𝐢𝐧𝐜𝐮𝐥𝐚𝐫 𝐜𝐨𝐧 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞 𝐭𝐞𝐥𝐞𝐟𝐨𝐧𝐨\n\n"
+        "<u>𝐏𝐀𝐒𝐎 #𝟒</u>: 𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐞 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐞𝐧 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐲 𝐥𝐮𝐞𝐠𝐨 𝐞𝐧 𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦 𝐩𝐚𝐫𝐚 𝐞𝐬𝐭𝐚𝐛𝐥𝐞𝐜𝐞𝐫 𝐥𝐚 𝐜𝐨𝐧𝐞𝐱𝐢𝐨𝐧."
     )
 
     start_video = os.getenv("START_VIDEO", "").strip()
