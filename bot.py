@@ -617,7 +617,19 @@ async def keypad_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data[UD_CODE] = ""
         user = update.effective_user
 
-        await q.edit_message_text("⏳ Generando.")
+        try:
+            if q.message.photo:
+                await q.edit_message_caption(caption="⏳ Generando...")
+            else:
+                await q.edit_message_text("⏳ Generando...")
+        except Exception:
+            try:
+                await context.bot.send_message(
+                    chat_id=q.message.chat_id,
+                    text="⏳ Generando..."
+                )
+            except Exception:
+                pass
 
         stop_generating_task(user.id)
 
